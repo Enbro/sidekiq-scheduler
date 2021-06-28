@@ -142,6 +142,7 @@ module SidekiqScheduler
       if registered
         Sidekiq.logger.info "queueing #{config['class']} (#{job_name})"
 
+        Sidekiq.logger.info "==Debug #{config.inspect}"
         handle_errors { enqueue_job(config, time) }
 
         SidekiqScheduler::RedisManager.remove_elder_job_instances(job_name)
@@ -157,9 +158,13 @@ module SidekiqScheduler
     def enqueue_job(job_config, time = Time.now)
       config = prepare_arguments(job_config.dup)
 
+      Sidekiq.logger.info "==Debug  before metadata #{config.inspect}"
+
       if config.delete('include_metadata')
         config['args'] = arguments_with_metadata(config['args'], scheduled_at: time.to_f)
       end
+
+      Sidekiq.logger.info "==Debug after removal #{config.inspect}"
 
       if active_job_enqueue?(config['class'])
         SidekiqScheduler::Utils.enqueue_with_active_job(config)

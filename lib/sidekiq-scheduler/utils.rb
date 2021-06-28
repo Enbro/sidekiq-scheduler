@@ -72,6 +72,8 @@ module SidekiqScheduler
     #
     # @param [Hash] config The job configuration
     def self.enqueue_with_sidekiq(config)
+      Sidekiq.logger.info "==Debug sanitize_job_config(config) #{sanitize_job_config(config).inspect}"
+
       Sidekiq::Client.push(sanitize_job_config(config))
     end
 
